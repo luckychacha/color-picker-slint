@@ -124,7 +124,18 @@ pub fn main() {
         }
     }
     let confirm_dialog = ConfirmDialog::new().unwrap();
-
+    let _ = confirm_dialog.show();
+    confirm_dialog
+        .window()
+        .set_size(slint::WindowSize::Logical(slint::LogicalSize::new(
+            1000.0, 1000.0,
+        )));
+    confirm_dialog
+        .window()
+        .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
+            x: 0,
+            y: 0,
+        }));
     // let weak_window = main_window.as_weak();
     // let weak_confirm_dialog = confirm_dialog.as_weak();
     // confirm_dialog.on_yes_clicked(move || {
@@ -142,12 +153,12 @@ pub fn main() {
             if todo_model.iter().any(|t| !t.checked) {
                 let _ = confirm_dialog.show();
                 confirm_dialog.window().set_size(slint::WindowSize::Logical(
-                    slint::LogicalSize::new(1000.0, 1000.0),
+                    slint::LogicalSize::new(500.0, 500.0),
                 ));
                 confirm_dialog
                     .window()
                     .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
-                        x: 0,
+                        x: 200,
                         y: 0,
                     }));
                 println!(
