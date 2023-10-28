@@ -193,7 +193,7 @@ pub fn main() {
                 );
             }
 
-            confirm_dialog.hide().unwrap();
+            // confirm_dialog.hide().unwrap();
             println!("todo_model: {}", todo_model.row_count());
             let _ = confirm_dialog.show();
             confirm_dialog
