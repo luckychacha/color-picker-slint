@@ -86,7 +86,7 @@ pub fn main() {
     //     main_window.window().size(),
     //     main_window.window().is_visible()
     // );
-
+    let confirm_dialog = ConfirmDialog::new().unwrap();
     main_window.on_todo_added({
         let todo_model = todo_model.clone();
         move |text| {
@@ -123,19 +123,20 @@ pub fn main() {
             // StandardButton { kind: no; }
         }
     }
-    let confirm_dialog = ConfirmDialog::new().unwrap();
-    let _ = confirm_dialog.show();
-    confirm_dialog
-        .window()
-        .set_size(slint::WindowSize::Logical(slint::LogicalSize::new(
-            1000.0, 1000.0,
-        )));
-    confirm_dialog
-        .window()
-        .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
-            x: 0,
-            y: 0,
-        }));
+
+    // let _ = confirm_dialog.show();
+    // confirm_dialog
+    //     .window()
+    //     .set_size(slint::WindowSize::Logical(slint::LogicalSize::new(
+    //         1000.0, 1000.0,
+    //     )));
+    // confirm_dialog
+    //     .window()
+    //     .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
+    //         x: 0,
+    //         y: 0,
+    //     }));
+    // confirm_dialog.hide().unwrap();
     // let weak_window = main_window.as_weak();
     // let weak_confirm_dialog = confirm_dialog.as_weak();
     // confirm_dialog.on_yes_clicked(move || {
@@ -151,21 +152,17 @@ pub fn main() {
         let todo_model = todo_model.clone();
         move || {
             if todo_model.iter().any(|t| !t.checked) {
-                let _ = confirm_dialog.show();
-                confirm_dialog.window().set_size(slint::WindowSize::Logical(
-                    slint::LogicalSize::new(500.0, 500.0),
-                ));
-                confirm_dialog
-                    .window()
-                    .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
-                        x: 200,
-                        y: 0,
-                    }));
-                println!(
-                    "{:?} {:?}",
-                    confirm_dialog.window().size(),
-                    confirm_dialog.window().is_visible()
-                );
+                // let _ = confirm_dialog.show();
+                // confirm_dialog.window().set_size(slint::WindowSize::Logical(
+                //     slint::LogicalSize::new(500.0, 500.0),
+                // ));
+                // confirm_dialog
+                //     .window()
+                //     .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
+                //         x: 200,
+                //         y: 0,
+                //     }));
+
                 slint::CloseRequestResponse::KeepWindowShown
             } else {
                 slint::CloseRequestResponse::HideWindow
@@ -195,6 +192,21 @@ pub fn main() {
                     .into(),
                 );
             }
+
+            confirm_dialog.hide().unwrap();
+            println!("todo_model: {}", todo_model.row_count());
+            let _ = confirm_dialog.show();
+            confirm_dialog
+                .window()
+                .set_size(slint::WindowSize::Logical(slint::LogicalSize::new(
+                    500.0, 500.0,
+                )));
+            confirm_dialog
+                .window()
+                .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
+                    x: 200 + todo_model.row_count() as i32 * 10,
+                    y: 0,
+                }));
         }
     });
 
@@ -202,6 +214,4 @@ pub fn main() {
     main_window.set_todo_model(todo_model.into());
 
     main_window.run().unwrap();
-
-    println!("aaaaaaa");
 }
