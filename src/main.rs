@@ -86,7 +86,53 @@ pub fn main() {
     //     main_window.window().size(),
     //     main_window.window().is_visible()
     // );
+
+    slint::slint! {
+        // import { StandardButton } from "std-widgets.slint";
+
+        import { LineEdit } from "std-widgets.slint";
+        global Logic  {
+            in-out property <string> the-value;
+            pure callback magic-operation(string) -> string;
+        }
+
+        export component ConfirmDialog inherits Window {
+            // no-frame: true;
+            // confirm_popup_text := Text {
+            //     text: "Some items are not done, are you sure you wish to quit?";
+            //     wrap: word-wrap;
+
+            // }
+            callback move-action(string);
+            background: transparent;
+            // TouchArea {
+            //     moved => {
+            //         root.move-action(self.mouse-x / 1px, self.mouse-y / 1px);
+            //     }
+            // }
+            i-touch-area := TouchArea {
+                mouse-cursor: none;
+            }
+
+            o-line-edit := LineEdit {
+                text: i-touch-area.mouse-x / 1px + "," + i-touch-area.mouse-y / 1px;
+            }
+
+            in-out property <string> the-value <=> o-line-edit.text;
+
+            // in-out property <string> test <=> Logic.the-value;
+
+
+
+            // StandardButton { kind: yes; }
+            // StandardButton { kind: no; }
+        }
+    }
     let confirm_dialog = ConfirmDialog::new().unwrap();
+    confirm_dialog.on_move_action(|text| {
+        println!("move_action: {}", text);
+    });
+
     main_window.on_todo_added({
         let todo_model = todo_model.clone();
         move |text| {
@@ -108,21 +154,6 @@ pub fn main() {
             }
         }
     });
-
-    slint::slint! {
-        // import { StandardButton } from "std-widgets.slint";
-
-        export component ConfirmDialog inherits Window {
-            no-frame: true;
-            confirm_popup_text := Text {
-                text: "Some items are not done, are you sure you wish to quit?";
-                wrap: word-wrap;
-            }
-
-            // StandardButton { kind: yes; }
-            // StandardButton { kind: no; }
-        }
-    }
 
     // let _ = confirm_dialog.show();
     // confirm_dialog
@@ -195,6 +226,7 @@ pub fn main() {
 
             // confirm_dialog.hide().unwrap();
             println!("todo_model: {}", todo_model.row_count());
+            let _ = confirm_dialog.hide();
             let _ = confirm_dialog.show();
             confirm_dialog
                 .window()
