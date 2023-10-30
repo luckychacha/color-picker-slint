@@ -111,7 +111,7 @@ pub fn main() {
         }
 
         export component ConfirmDialog inherits Window {
-            no-frame: true;
+//            no-frame: true;
             in-out property <bool> show-circle: false;
             in-out property <CirclePosition> circle_position: { x: 5.0, y: 5.0 };
             in-out property <color> circle_border_color: transparent;
