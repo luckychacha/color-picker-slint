@@ -1,8 +1,7 @@
 // Copyright © SixtyFPS GmbH <info@slint-ui.com>
 // SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-Slint-commercial
 
-use slint::platform::WindowAdapter;
-use slint::{FilterModel, Model, SortModel, Window};
+use slint::{Color, FilterModel, Model, SortModel};
 use std::rc::Rc;
 
 #[cfg(target_arch = "wasm32")]
@@ -77,7 +76,7 @@ pub fn main() {
     ]));
 
     let main_window = MainWindow::new().unwrap();
-    let tmp = slint::LogicalSize::new(1800.0, 1900.0);
+    // let tmp = slint::LogicalSize::new(1800.0, 1900.0);
     // main_window
     //     .window()
     //     .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition { x: 0, y: 0 }));
@@ -90,48 +89,131 @@ pub fn main() {
     slint::slint! {
         // import { StandardButton } from "std-widgets.slint";
 
-        import { LineEdit } from "std-widgets.slint";
-        global Logic  {
-            in-out property <string> the-value;
-            pure callback magic-operation(string) -> string;
+        import { LineEdit, CheckBox } from "std-widgets.slint";
+        export global Logic  {
+            pure callback mouse-move(string) -> string;
+
+        }
+
+        struct CirclePosition {
+            x: float,
+            y: float,
+        }
+
+        component Circle inherits Rectangle {
+            width: 50px;
+            height: 50px;
+            border-width: 4px;
+            border-radius: root.width / 10;
+            // animate x { duration: 250ms; easing: ease-in; }
+            // animate y { duration: 250ms; easing: ease-in-out; }
+            // animate background { duration: 250ms; }
         }
 
         export component ConfirmDialog inherits Window {
-            // no-frame: true;
-            // confirm_popup_text := Text {
-            //     text: "Some items are not done, are you sure you wish to quit?";
-            //     wrap: word-wrap;
+            no-frame: true;
+            in-out property <bool> show-circle: false;
+            in-out property <CirclePosition> circle_position: { x: 5.0, y: 5.0 };
+            in-out property <color> circle_border_color: transparent;
+            in-out property <float> circle_position_x: 1.0;
+            in-out property <float> circle_position_y: 1.0;
 
-            // }
             callback move-action(string);
+            callback try_to_show_circle();
+
             background: transparent;
-            // TouchArea {
-            //     moved => {
-            //         root.move-action(self.mouse-x / 1px, self.mouse-y / 1px);
-            //     }
-            // }
+
             i-touch-area := TouchArea {
                 mouse-cursor: none;
             }
 
-            o-line-edit := LineEdit {
-                text: i-touch-area.mouse-x / 1px + "," + i-touch-area.mouse-y / 1px;
+            Circle {
+
+                background: transparent;
+                border-color: root.circle_border_color;
+                x: circle_position_x * 1px;
+                y: circle_position_y * 1px;
+                Image {
+                    source: @image-url("ui/licon.png");
+                    visible: root.show-circle;
+                    // image-fit default is `contain` when in layout, preserving aspect ratio
+                }
             }
 
-            in-out property <string> the-value <=> o-line-edit.text;
+            Text {
+                visible: false;
+                text: {
+                    Logic.mouse-move(i-touch-area.mouse-x / 1px + "," + i-touch-area.mouse-y / 1px);
+                }
+            }
 
-            // in-out property <string> test <=> Logic.the-value;
+            // CheckBox {
+            //     text: "show_circle";
 
+            //     toggled => {
+            //         root.try_to_show_circle();
+            //     }
+            // }
 
-
-            // StandardButton { kind: yes; }
-            // StandardButton { kind: no; }
         }
     }
     let confirm_dialog = ConfirmDialog::new().unwrap();
-    confirm_dialog.on_move_action(|text| {
-        println!("move_action: {}", text);
+    confirm_dialog.set_show_circle(false);
+
+    confirm_dialog.global::<Logic>().on_mouse_move({
+        let confirm_dialog_weak = confirm_dialog.as_weak();
+
+        move |circle_position| {
+            // println!("before: {:?}", circle_visible);
+            println!("aaaa: {:?}", circle_position.as_str());
+            if let Some(confirm_dialog) = confirm_dialog_weak.upgrade() {
+                if circle_position.as_str() == "0,0" {
+                } else {
+                    confirm_dialog.set_show_circle(true);
+                    confirm_dialog.set_circle_border_color(Color::from_rgb_u8(0, 0, 0));
+                }
+                // confirm_dialog.set_show_circle(true);
+
+                // confirm_dialog.set_circle_position(CirclePosition {
+                //     x: circle_position.as_str().split(",").collect::<Vec<&str>>()[0]
+                //         .parse::<f32>()
+                //         .unwrap(),
+                //     y: circle_position.as_str().split(",").collect::<Vec<&str>>()[1]
+                //         .parse::<f32>()
+                //         .unwrap(),
+                // });
+                let pos: Vec<f32> = circle_position
+                    .as_str()
+                    .split(",")
+                    .map(|e| e.parse::<f32>().unwrap())
+                    .collect();
+                confirm_dialog.set_circle_position_x(pos[0]);
+                confirm_dialog.set_circle_position_y(pos[1]);
+
+                // confirm_dialog.set_show_circle(true);
+                // println!("get_show_circle: {:?}", confirm_dialog.get_show_circle());
+                // println!("aaaaa");
+                // println!(
+                //     "show-circle: {:?} changed: {:?}",
+                //     confirm_dialog.get_show_circle(),
+                //     confirm_dialog.get_changed()
+                // );
+                // confirm_dialog.set_show_circle(true);
+                // confirm_dialog.set_changed(true);
+            }
+            "".into()
+        }
     });
+
+    // confirm_dialog.on_try_to_show_circle({
+    //     let confirm_dialog_weak = confirm_dialog.as_weak();
+    //     move || {
+    //         if let Some(confirm_dialog) = confirm_dialog_weak.upgrade() {
+    //             confirm_dialog.set_show_circle(true);
+    //             confirm_dialog.set_circle_border_color(Color::from_rgb_u8(0, 0, 0));
+    //         }
+    //     }
+    // });
 
     main_window.on_todo_added({
         let todo_model = todo_model.clone();
@@ -224,21 +306,21 @@ pub fn main() {
                 );
             }
 
-            // confirm_dialog.hide().unwrap();
             println!("todo_model: {}", todo_model.row_count());
-            let _ = confirm_dialog.hide();
             let _ = confirm_dialog.show();
+
+            confirm_dialog
+                .window()
+                .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
+                    x: 0,
+                    y: 0,
+                }));
+
             confirm_dialog
                 .window()
                 .set_size(slint::WindowSize::Logical(slint::LogicalSize::new(
                     500.0, 500.0,
                 )));
-            confirm_dialog
-                .window()
-                .set_position(slint::WindowPosition::Physical(slint::PhysicalPosition {
-                    x: 200 + todo_model.row_count() as i32 * 10,
-                    y: 0,
-                }));
         }
     });
 
