@@ -87,78 +87,78 @@ pub fn main() {
     // );
 
     slint::slint! {
-        // import { StandardButton } from "std-widgets.slint";
+            // import { StandardButton } from "std-widgets.slint";
 
-        import { LineEdit, CheckBox } from "std-widgets.slint";
-        export global Logic  {
-            pure callback mouse-move(string) -> string;
+            import { LineEdit, CheckBox } from "std-widgets.slint";
+            export global Logic  {
+                pure callback mouse-move(string) -> string;
 
-        }
-
-        struct CirclePosition {
-            x: float,
-            y: float,
-        }
-
-        component Circle inherits Rectangle {
-            width: 50px;
-            height: 50px;
-            border-width: 4px;
-            border-radius: root.width / 10;
-            // animate x { duration: 250ms; easing: ease-in; }
-            // animate y { duration: 250ms; easing: ease-in-out; }
-            // animate background { duration: 250ms; }
-        }
-
-        export component ConfirmDialog inherits Window {
-//            no-frame: true;
-            in-out property <bool> show-circle: false;
-            in-out property <CirclePosition> circle_position: { x: 5.0, y: 5.0 };
-            in-out property <color> circle_border_color: transparent;
-            in-out property <float> circle_position_x: 1.0;
-            in-out property <float> circle_position_y: 1.0;
-
-            callback move-action(string);
-            callback try_to_show_circle();
-
-            background: transparent;
-
-            i-touch-area := TouchArea {
-                mouse-cursor: none;
             }
 
-            Circle {
+            struct CirclePosition {
+                x: float,
+                y: float,
+            }
+
+            component Circle inherits Rectangle {
+                width: 50px;
+                height: 50px;
+                border-width: 4px;
+                border-radius: root.width / 10;
+                // animate x { duration: 250ms; easing: ease-in; }
+                // animate y { duration: 250ms; easing: ease-in-out; }
+                // animate background { duration: 250ms; }
+            }
+
+            export component ConfirmDialog inherits Window {
+    //            no-frame: true;
+                in-out property <bool> show-circle: true;
+                in-out property <CirclePosition> circle_position: { x: 5.0, y: 5.0 };
+                in-out property <color> circle_border_color: transparent;
+                in-out property <float> circle_position_x: 1.0;
+                in-out property <float> circle_position_y: 1.0;
+
+                callback move-action(string);
+                callback try_to_show_circle();
 
                 background: transparent;
-                border-color: root.circle_border_color;
-                x: circle_position_x * 1px;
-                y: circle_position_y * 1px;
-                Image {
-                    source: @image-url("ui/licon.png");
-                    visible: root.show-circle;
-                    // image-fit default is `contain` when in layout, preserving aspect ratio
+
+                i-touch-area := TouchArea {
+                    mouse-cursor: none;
                 }
-            }
 
-            Text {
-                visible: false;
-                text: {
-                    Logic.mouse-move(i-touch-area.mouse-x / 1px + "," + i-touch-area.mouse-y / 1px);
+                Circle {
+
+                    background: transparent;
+                    border-color: root.circle_border_color;
+                    x: circle_position_x * 1px;
+                    y: circle_position_y * 1px;
+                    Image {
+                        source: @image-url("ui/licon.png");
+                        visible: root.show-circle;
+                        // image-fit default is `contain` when in layout, preserving aspect ratio
+                    }
                 }
+
+                Text {
+                    visible: false;
+                    text: {
+                        Logic.mouse-move(i-touch-area.mouse-x / 1px + "," + i-touch-area.mouse-y / 1px);
+                    }
+                }
+
+                // CheckBox {
+                //     text: "show_circle";
+
+                //     toggled => {
+                //         root.try_to_show_circle();
+                //     }
+                // }
+
             }
-
-            // CheckBox {
-            //     text: "show_circle";
-
-            //     toggled => {
-            //         root.try_to_show_circle();
-            //     }
-            // }
-
         }
-    }
     let confirm_dialog = ConfirmDialog::new().unwrap();
-    confirm_dialog.set_show_circle(false);
+    confirm_dialog.set_show_circle(true);
 
     confirm_dialog.global::<Logic>().on_mouse_move({
         let confirm_dialog_weak = confirm_dialog.as_weak();

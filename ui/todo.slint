@@ -9,6 +9,16 @@ export struct TodoItem  {
     checked: bool,
 }
 
+component Circle inherits Rectangle {
+    width: 50px;
+    height: 50px;
+    border-width: 4px;
+    border-radius: root.width / 10;
+    // animate x { duration: 250ms; easing: ease-in; }
+    // animate y { duration: 250ms; easing: ease-in-out; }
+    // animate background { duration: 250ms; }
+}
+
 component MainWindow inherits Window {
     preferred-width: 400px;
     preferred-height: 600px;
@@ -17,8 +27,24 @@ component MainWindow inherits Window {
 
     callback popup_confirmed;
     callback show_confirm_popup;
+    in-out property <bool> show-circle: true;
+    in-out property <color> circle_border_color: black;
+    in-out property <float> circle_position_x: 1.0;
+    in-out property <float> circle_position_y: 1.0;
 
     callback apply_sorting_and_filtering();
+    
+    Circle {
+        background: transparent;
+        border-color: root.circle_border_color;
+        x: circle_position_x * 1px;
+        y: circle_position_y * 1px;
+        Image {
+            source: @image-url("licon.png");
+            visible: root.show-circle;
+            // image-fit default is `contain` when in layout, preserving aspect ratio
+        }
+    }
 
     in property <[TodoItem]> todo-model: [
         { title: "Implement the .slint file", checked: true },
@@ -34,6 +60,8 @@ component MainWindow inherits Window {
     in property <bool> show-header: false;
     in-out property <bool> is-sort-by-name: false;
     in-out property <bool> hide-done-items: false;
+
+    background: is-sort-by-name ? transparent : white;
 
     VerticalBox {
         HorizontalBox {
