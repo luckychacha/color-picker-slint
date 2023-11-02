@@ -1,13 +1,7 @@
-// Copyright © SixtyFPS GmbH <info@slint.dev>
 // SPDX-License-Identifier: MIT
 
 use i_slint_backend_winit::WinitWindowAccessor;
-use slint::{
-    FilterModel, LogicalPosition, LogicalSize, Model, PhysicalSize, SortModel, WindowPosition,
-    WindowSize,
-};
-
-use std::rc::Rc;
+use slint::{LogicalPosition, LogicalSize, WindowPosition, WindowSize};
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -34,80 +28,102 @@ pub fn main() {
         main_window.window().on_close_requested(move || {
             let window = weak_window.unwrap();
 
-            // if todo_model.iter().any(|t| !t.checked) {
-            //     window.invoke_show_confirm_popup();
-            //     slint::CloseRequestResponse::KeepWindowShown
-            // } else {
-            //     slint::CloseRequestResponse::HideWindow
-            // }
             window.invoke_show_confirm_popup();
             slint::CloseRequestResponse::KeepWindowShown
         });
     }
+    {
+        let weak_window = main_window.as_weak();
+        main_window.on_start_pick_screen_color(move || {
+            let window: MainWindow = weak_window.unwrap();
 
-    let weak_window = main_window.as_weak();
-    main_window.on_start_pick_screen_color(move || {
-        let window = weak_window.unwrap();
+            window.set_cursor_position_changed(false);
+            window.set_moving(false);
 
-        window
-            .window()
-            .with_winit_window(|winit_win: &winit::window::Window| {
-                let monitor = winit_win.current_monitor().unwrap();
-                println!("{:?} {:?}", monitor.size().width, monitor.size().height);
-                window
-                    .window()
-                    .set_size(WindowSize::Logical(LogicalSize::new(
-                        (monitor.size().width / 2) as f32,
-                        (monitor.size().height / 2) as f32,
-                    )));
-                window
-                    .window()
-                    .set_position(WindowPosition::Logical(LogicalPosition::new(0.0, 0.0)));
-            });
-    });
+            window
+                .window()
+                .with_winit_window(|winit_win: &winit::window::Window| {
+                    let monitor = winit_win.current_monitor().unwrap();
+                    println!(
+                        "screen width: {:?} height: {:?}",
+                        monitor.size().width,
+                        monitor.size().height
+                    );
+                    window
+                        .window()
+                        .set_size(WindowSize::Logical(LogicalSize::new(
+                            ((monitor.size().width + 20) / 2) as f32,
+                            ((monitor.size().height + 20) / 2) as f32,
+                        )));
+                    window
+                        .window()
+                        .set_position(WindowPosition::Logical(LogicalPosition::new(-10.0, -10.0)));
+                });
+        });
+    }
 
-    let weak_window = main_window.as_weak();
-    main_window.on_stop_pick_screen_color(move || {
-        let window = weak_window.unwrap();
-        window
-            .window()
-            .with_winit_window(|winit_win: &winit::window::Window| {
-                let monitor = winit_win.current_monitor().unwrap();
-                let width = monitor.size().width / 2;
-                let height = monitor.size().height / 2;
-                let window_width = 400 / 2;
-                let window_height = 600 / 2;
-                let center_width: i32 = (width - window_width) as i32;
-                let center_height: i32 = (height - window_height) as i32;
-                window
-                    .window()
-                    .set_size(WindowSize::Logical(LogicalSize::new(400.0, 600.0)));
-                window
-                    .window()
-                    .set_position(slint::PhysicalPosition::new(center_width, center_height));
-            });
-    });
-
-    let weak_window = main_window.as_weak();
-    main_window.on_mouse_move(move |circle_position| {
-        println!("aaaa: {:?}", circle_position.as_str());
-        if circle_position.as_str() != "0,0" {
+    {
+        let weak_window = main_window.as_weak();
+        main_window.on_stop_pick_screen_color(move || {
             let window = weak_window.unwrap();
-            let pos: Vec<f32> = circle_position
-                .as_str()
-                .split(",")
-                .map(|e| e.parse::<f32>().unwrap())
-                .collect();
-            window.set_circle_position_x(pos[0]);
-            window.set_circle_position_y(pos[1]);
-            window.set_moving(true);
-        }
-        "".into()
-    });
+            window
+                .window()
+                .with_winit_window(|winit_win: &winit::window::Window| {
+                    let monitor = winit_win.current_monitor().unwrap();
+                    let width = monitor.size().width / 2;
+                    let height = monitor.size().height / 2;
+                    let window_width = 400 / 2;
+                    let window_height = 600 / 2;
+                    let center_width: i32 = (width - window_width) as i32;
+                    let center_height: i32 = (height - window_height) as i32;
+                    window
+                        .window()
+                        .set_size(WindowSize::Logical(LogicalSize::new(400.0, 600.0)));
+                    window
+                        .window()
+                        .set_position(slint::PhysicalPosition::new(center_width, center_height));
+                });
+        });
+    }
 
-    // main_window.set_show_header(true);
-    // main_window.set_todo_model(todo_model.into());
+    {
+        let weak_window = main_window.as_weak();
+        main_window.on_mouse_move(move |circle_position| {
+            println!("cursor position: {:?}", circle_position.as_str());
+            if circle_position.as_str() != "0,0" {
+                let window = weak_window.unwrap();
+                let pos: Vec<f32> = circle_position
+                    .as_str()
+                    .split(",")
+                    .map(|e| e.parse::<f32>().unwrap())
+                    .collect();
+                window.set_circle_position_x(pos[0] - window.get_picker_circle_radius() as f32);
+                window.set_circle_position_y(pos[1] - window.get_picker_circle_radius() as f32);
+                if window.get_cursor_position_changed() {
+                    window.set_moving(true);
+                } else {
+                    window.set_cursor_position_changed(true);
+                }
+                println!("moving: {:?}", window.get_moving());
+            }
+            "".into()
+        });
+    }
 
+    main_window
+        .window()
+        .with_winit_window(|winit_win: &winit::window::Window| {
+            let monitor = winit_win.current_monitor().unwrap();
+            let width = monitor.size().width / 2;
+            let height = monitor.size().height / 2;
+            let window_width = 400 / 2;
+            let window_height = 600 / 2;
+            let center_width: i32 = (width - window_width) as i32;
+            let center_height: i32 = (height - window_height) as i32;
+            main_window
+                .window()
+                .set_position(slint::PhysicalPosition::new(center_width, center_height));
+        });
     main_window.run().unwrap();
 }
 

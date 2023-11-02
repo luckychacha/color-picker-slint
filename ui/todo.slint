@@ -10,9 +10,6 @@ export struct TodoItem  {
 }
 
 component Circle inherits Rectangle {
-    width: 50px;
-    height: 50px;
-    border-width: 4px;
     border-radius: root.width / 2;
     // animate x { duration: 250ms; easing: ease-in; }
     // animate y { duration: 250ms; easing: ease-in-out; }
@@ -24,10 +21,14 @@ component Circle inherits Rectangle {
 component MainWindow inherits Window {
     preferred-width: 400px;
     preferred-height: 600px;
+    in-out property <int> picker-circle-radius: 50;
     in-out property <bool> picking-color-on-screen: false;
+
     in-out property <bool> moving: false;
+    in-out property <bool> cursor-position-changed: false;
 
     // no-frame: picking-color-on-screen;
+    no-frame: true;
 
     callback popup_confirmed;
     callback show_confirm_popup;
@@ -37,7 +38,6 @@ component MainWindow inherits Window {
     callback start-pick-screen-color();
     callback stop-pick-screen-color();
     pure callback mouse-move(string) -> string;
-
 
     show_confirm_popup => { confirm_popup.show(); }
 
@@ -81,6 +81,9 @@ component MainWindow inherits Window {
     }
     
     Circle {
+        width: root.picker-circle-radius * 2 * 1px;
+        height: root.picker-circle-radius * 2 * 1px;
+        border-width: 4px;
         background: transparent;
         border-color: black;
         x: root.circle_position_x * 1px;
@@ -90,14 +93,21 @@ component MainWindow inherits Window {
         // }
         visible: picking-color-on-screen && moving;
     }
-
+    Text {
+        visible: false;
+        text: {
+            root.mouse-move(i-touch-area.mouse-x / 1px + "," + i-touch-area.mouse-y / 1px);
+        }
+    }
     VerticalBox {
         visible: !picking-color-on-screen;
         
         HorizontalBox {
+            height: 10%;
+            padding: 0px;
+
             pick-screen-color-btn := Button {
-                
-                // width: 300px;
+                width: 30%;
                 // height: 50px;
                 text: "Start Pick Screen Color!";
                 clicked => {
@@ -106,11 +116,6 @@ component MainWindow inherits Window {
                 }
             }
         }
-        Text {
-            // visible: false;
-            text: {
-                root.mouse-move(i-touch-area.mouse-x / 1px + "," + i-touch-area.mouse-y / 1px);
-            }
-        }
+        
     }
 }
