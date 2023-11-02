@@ -1,5 +1,5 @@
-// Copyright © SixtyFPS GmbH <info@slint-ui.com>
-// SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-Slint-commercial
+// Copyright © SixtyFPS GmbH <info@slint.dev>
+// SPDX-License-Identifier: MIT
 
 import { SpinBox, Button, CheckBox, Slider, LineEdit, ScrollView, ListView,
     HorizontalBox, VerticalBox, GridBox, StandardButton } from "std-widgets.slint";
@@ -13,113 +13,103 @@ component Circle inherits Rectangle {
     width: 50px;
     height: 50px;
     border-width: 4px;
-    border-radius: root.width / 10;
+    border-radius: root.width / 2;
     // animate x { duration: 250ms; easing: ease-in; }
     // animate y { duration: 250ms; easing: ease-in-out; }
     // animate background { duration: 250ms; }
 }
-
+// export global Logic  {
+//     pure callback mouse-move(string) -> string;
+// }
 component MainWindow inherits Window {
     preferred-width: 400px;
     preferred-height: 600px;
-    callback todo-added(string);
-    callback remove-done();
+    in-out property <bool> picking-color-on-screen: false;
+    in-out property <bool> moving: false;
+
+    // no-frame: picking-color-on-screen;
 
     callback popup_confirmed;
     callback show_confirm_popup;
-    in-out property <bool> show-circle: true;
-    in-out property <color> circle_border_color: black;
+
+    callback apply_sorting_and_filtering();
+
+    callback start-pick-screen-color();
+    callback stop-pick-screen-color();
+    pure callback mouse-move(string) -> string;
+
+
+    show_confirm_popup => { confirm_popup.show(); }
+
+    confirm_popup := PopupWindow {
+        x: 40px;
+        y: 100px;
+        width: min(confirm_popup_layout.preferred-width, root.width - 80px);
+        Rectangle {
+            background: root.background;
+            border-color: confirm_popup_text.color;
+            border-width: 1px;
+        }
+        confirm_popup_layout := Dialog {
+            height:100%; width: 100%;
+            confirm_popup_text := Text {
+                text: "Some items are not done, are you sure you wish to quit?";
+                wrap: word-wrap;
+            }
+            StandardButton { kind: yes; clicked => { root.popup_confirmed(); } }
+            StandardButton { kind: no; }
+        }
+    }
     in-out property <float> circle_position_x: 1.0;
     in-out property <float> circle_position_y: 1.0;
 
-    callback apply_sorting_and_filtering();
+    background: picking-color-on-screen ? transparent : white;
+
+    i-touch-area := TouchArea {
+        width: 100%;
+        height: 100%;
+
+        visible: picking-color-on-screen;
+        // mouse-cursor: none;
+        clicked => {
+            if (picking-color-on-screen) {
+                root.picking-color-on-screen = false;
+                root.stop-pick-screen-color();
+                // root.background = i-touch-area.picked-color;
+            }
+        }
+    }
     
     Circle {
         background: transparent;
-        border-color: root.circle_border_color;
-        x: circle_position_x * 1px;
-        y: circle_position_y * 1px;
-        Image {
-            source: @image-url("licon.png");
-            visible: root.show-circle;
-            // image-fit default is `contain` when in layout, preserving aspect ratio
-        }
+        border-color: black;
+        x: root.circle_position_x * 1px;
+        y: root.circle_position_y * 1px;
+        // Image {
+        //     source: @image-url("licon.png");
+        // }
+        visible: picking-color-on-screen && moving;
     }
 
-    in property <[TodoItem]> todo-model: [
-        { title: "Implement the .slint file", checked: true },
-        { title: "Do the Rust part", checked: false },
-        { title: "Make the C++ code", checked: false },
-        { title: "Write some JavaScript code", checked: false },
-        { title: "Test the application", checked: false },
-        { title: "Ship to customer", checked: false },
-        { title: "???", checked: false },
-        { title: "Profit", checked: false },
-    ];
-
-    in property <bool> show-header: false;
-    in-out property <bool> is-sort-by-name: false;
-    in-out property <bool> hide-done-items: false;
-
-    background: is-sort-by-name ? transparent : white;
-
     VerticalBox {
+        visible: !picking-color-on-screen;
+        
         HorizontalBox {
-            text-edit := LineEdit {
-                placeholder-text: "What needs to be done?";
-                accepted(text) => {
-                    root.todo-added(self.text);
-                    self.text = "";
-                }
-            }
-            btn := Button {
-                text: "Add New Entry";
-                enabled: text-edit.text != "";
+            pick-screen-color-btn := Button {
+                
+                // width: 300px;
+                // height: 50px;
+                text: "Start Pick Screen Color!";
                 clicked => {
-                    root.todo-added(text-edit.text);
-                    text-edit.text = "";
+                    root.picking-color-on-screen = true;
+                    root.start-pick-screen-color();
                 }
             }
         }
-
-        if (root.show-header) : HorizontalBox { 
-            alignment: start; 
-
-            CheckBox {  
-                text: "Sort by name";
-                checked <=> root.is-sort-by-name;
-
-                toggled => {
-                    root.apply_sorting_and_filtering();
-                }
-            }
-
-            CheckBox {  
-                text: "Hide done items";
-                checked <=> root.hide-done-items;
-
-                toggled => {
-                    root.apply_sorting_and_filtering();
-                }
-            }
-        }
-
-        list-view := ListView {
-            for todo in root.todo-model:  HorizontalLayout {
-                CheckBox {
-                    text: todo.title;
-                    checked: todo.checked;
-                    toggled => {
-                        todo.checked = self.checked;
-                    }
-                }
-            }
-        }
-        HorizontalBox {
-            alignment: end;
-            Button {
-                text: "Remove Done Items";
-                clicked => { root.remove-done(); }
+        Text {
+            // visible: false;
+            text: {
+                root.mouse-move(i-touch-area.mouse-x / 1px + "," + i-touch-area.mouse-y / 1px);
             }
         }
     }
