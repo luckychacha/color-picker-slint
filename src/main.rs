@@ -8,6 +8,18 @@ use wasm_bindgen::prelude::*;
 
 slint::include_modules!();
 
+fn get_current_monitor_size(window: &slint::Window) -> Option<(f32, f32)> {
+    window.with_winit_window(|winit_win: &winit::window::Window| {
+        let monitor = winit_win.current_monitor().unwrap();
+        (monitor.size().width as f32, monitor.size().height as f32)
+    })
+}
+
+fn set_window_position_and_size(window: &slint::Window, width: f32, height: f32, x: i32, y: i32) {
+    window.set_size(WindowSize::Logical(LogicalSize::new(width, height)));
+    window.set_position(slint::PhysicalPosition::new(x, y));
+}
+
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
 pub fn main() {
     // This provides better error messages in debug mode.
@@ -39,26 +51,15 @@ pub fn main() {
 
             window.set_cursor_position_changed(false);
             window.set_moving(false);
-
-            window
-                .window()
-                .with_winit_window(|winit_win: &winit::window::Window| {
-                    let monitor = winit_win.current_monitor().unwrap();
-                    println!(
-                        "screen width: {:?} height: {:?}",
-                        monitor.size().width,
-                        monitor.size().height
-                    );
-                    window
-                        .window()
-                        .set_size(WindowSize::Logical(LogicalSize::new(
-                            ((monitor.size().width + 20) / 2) as f32,
-                            ((monitor.size().height + 20) / 2) as f32,
-                        )));
-                    window
-                        .window()
-                        .set_position(WindowPosition::Logical(LogicalPosition::new(-10.0, -10.0)));
-                });
+            if let Some((screen_width, screen_height)) = get_current_monitor_size(window.window()) {
+                set_window_position_and_size(
+                    window.window(),
+                    (screen_width + 20.0) / 2.0,
+                    (screen_height + 20.0) / 2.0,
+                    -10,
+                    -10,
+                );
+            }
         });
     }
 
@@ -66,23 +67,15 @@ pub fn main() {
         let weak_window = main_window.as_weak();
         main_window.on_stop_pick_screen_color(move || {
             let window = weak_window.unwrap();
-            window
-                .window()
-                .with_winit_window(|winit_win: &winit::window::Window| {
-                    let monitor = winit_win.current_monitor().unwrap();
-                    let width = monitor.size().width / 2;
-                    let height = monitor.size().height / 2;
-                    let window_width = 400 / 2;
-                    let window_height = 600 / 2;
-                    let center_width: i32 = (width - window_width) as i32;
-                    let center_height: i32 = (height - window_height) as i32;
-                    window
-                        .window()
-                        .set_size(WindowSize::Logical(LogicalSize::new(400.0, 600.0)));
-                    window
-                        .window()
-                        .set_position(slint::PhysicalPosition::new(center_width, center_height));
-                });
+            if let Some((screen_width, screen_height)) = get_current_monitor_size(window.window()) {
+            set_window_position_and_size(
+                window.window(),
+                400.0,
+                600.0,
+                (screen_width / 2.0 - 200.0) as i32,
+                (screen_height / 2.0 - 300.0) as i32,
+            );
+                }
         });
     }
 
@@ -110,20 +103,15 @@ pub fn main() {
         });
     }
 
-    main_window
-        .window()
-        .with_winit_window(|winit_win: &winit::window::Window| {
-            let monitor = winit_win.current_monitor().unwrap();
-            let width = monitor.size().width / 2;
-            let height = monitor.size().height / 2;
-            let window_width = 400 / 2;
-            let window_height = 600 / 2;
-            let center_width: i32 = (width - window_width) as i32;
-            let center_height: i32 = (height - window_height) as i32;
-            main_window
-                .window()
-                .set_position(slint::PhysicalPosition::new(center_width, center_height));
-        });
+    if let Some((screen_width, screen_height)) = get_current_monitor_size(main_window.window()) {
+        set_window_position_and_size(
+            main_window.window(),
+            400.0,
+            600.0,
+            (screen_width / 2.0 - 200.0) as i32,
+            (screen_height / 2.0 - 300.0) as i32,
+        );
+    }
     main_window.run().unwrap();
 }
 
