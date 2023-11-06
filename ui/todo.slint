@@ -62,7 +62,6 @@ component MainWindow inherits Window {
     }
     in-out property <float> circle_position_x: 1.0;
     in-out property <float> circle_position_y: 1.0;
-    in-out property <bool> is-capturing;
     in-out property <image> cursor-around-screenshot;
     in-out property <bool> has-image;
 
@@ -92,11 +91,12 @@ component MainWindow inherits Window {
         x: root.circle_position_x * 1px;
         y: root.circle_position_y * 1px;
         visible: has-image;
+        clip: true;
+        z: -10000;
 
         Image {
             visible: has-image;
             source: root.cursor-around-screenshot;
-            // source: @image-url("licon.png");
         }
     }
     Text {
