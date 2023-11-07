@@ -1,15 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-use core::time;
-use std::thread;
 
 use i_slint_backend_winit::WinitWindowAccessor;
 use image::imageops;
 use screenshots::Screen;
 use slint::{
-    Image, LogicalPosition, LogicalSize, Rgba8Pixel, SharedPixelBuffer, WindowPosition, WindowSize,
+    Image, LogicalSize, Rgba8Pixel, SharedPixelBuffer, WindowSize,
 };
-use slint::private_unstable_api::re_exports::ImageInner;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -114,9 +111,6 @@ pub fn main() {
                 let circle_position_x = pos[0] + (window.get_picker_circle_radius() as f32) / 3.0;
                 let circle_position_y = pos[1] + (window.get_picker_circle_radius() as f32) / 3.0;
 
-                // let circle_position_x = 25.0;
-                // let circle_position_y = 25.0;
-
                 if window.get_cursor_position_changed() {
                     let screens = Screen::all().unwrap();
                     if let Some(image_buffer) = screens
@@ -135,7 +129,6 @@ pub fn main() {
                             image_buffer.width(),
                             image_buffer.height(),
                         );
-                        // println!("aaa: {:?}", window.get_cursor_around_screenshot());
                         window.set_cursor_around_screenshot(Image::from_rgba8(buffer));
 
                         window.set_circle_position_x(circle_position_x);
