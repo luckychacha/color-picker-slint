@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: MIT
-
-
 use i_slint_backend_winit::WinitWindowAccessor;
 use image::imageops;
 use screenshots::Screen;
