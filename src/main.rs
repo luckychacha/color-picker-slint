@@ -2,9 +2,7 @@
 use i_slint_backend_winit::WinitWindowAccessor;
 use image::imageops;
 use screenshots::Screen;
-use slint::{
-    Image, LogicalSize, Rgba8Pixel, SharedPixelBuffer, WindowSize,
-};
+use slint::{Image, LogicalSize, Rgba8Pixel, SharedPixelBuffer, WindowSize};
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -111,17 +109,25 @@ pub fn main() {
 
                 if window.get_cursor_position_changed() {
                     let screens = Screen::all().unwrap();
-                    if let Some(image_buffer) = screens
-                        .get(0)
-                        .and_then(|f| {
-                            if !window.get_has_image() {
-                                f.capture_area(pos[0] as i32 - 15, pos[1] as i32 - 20, 30, 30).ok()
-                            } else {
-                                None
-                            }
-                        })
-                    {
-                        let image_buffer = imageops::resize(&image_buffer, 90, 90, imageops::FilterType::Nearest);
+                    if let Some(image_buffer) = screens.get(0).and_then(|f| {
+                        if !window.get_has_image() {
+                            f.capture_area(pos[0] as i32 - 15, pos[1] as i32 - 20, 30, 30)
+                                .ok()
+                        } else {
+                            None
+                        }
+                    }) {
+                        let image_buffer =
+                            imageops::resize(&image_buffer, 90, 90, imageops::FilterType::Nearest);
+                        let center_x = image_buffer.width() / 2;
+                        let center_y = image_buffer.height() / 2;
+                        let pixel = image_buffer.get_pixel(center_x, center_y);
+                        let (r, g, b, a) = (pixel[0], pixel[1], pixel[2], pixel[3]);
+                        println!(
+                            "r: {r}, g: {g}, b: {b}, a: {a}, hex: #{:02X}{:02X}{:02X}",
+                            r, g, b
+                        );
+
                         let buffer = SharedPixelBuffer::<Rgba8Pixel>::clone_from_slice(
                             image_buffer.as_raw(),
                             image_buffer.width(),
@@ -140,7 +146,11 @@ pub fn main() {
                     window.set_cursor_position_changed(true);
                     window.set_has_image(false);
                 }
-                println!("moving: {:?} has_image: {:?}", window.get_moving(), window.get_has_image());
+                println!(
+                    "moving: {:?} has_image: {:?}",
+                    window.get_moving(),
+                    window.get_has_image()
+                );
             }
             "".into()
         });
@@ -168,6 +178,6 @@ fn android_main(app: i_slint_backend_android_activity::AndroidApp) {
             eprintln!("Got event: {event:?}")
         }),
     ))
-        .unwrap();
+    .unwrap();
     main();
 }
