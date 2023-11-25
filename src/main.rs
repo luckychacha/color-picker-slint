@@ -2,7 +2,7 @@
 use i_slint_backend_winit::WinitWindowAccessor;
 use image::imageops;
 use screenshots::Screen;
-use slint::{Image, LogicalSize, Rgba8Pixel, SharedPixelBuffer, WindowSize};
+use slint::{Color, Image, LogicalSize, Rgba8Pixel, RgbaColor, SharedPixelBuffer, WindowSize};
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
@@ -126,6 +126,16 @@ pub fn main() {
                         println!(
                             "r: {r}, g: {g}, b: {b}, a: {a}, hex: #{:02X}{:02X}{:02X}",
                             r, g, b
+                        );
+                        let chosen_rgba_color = RgbaColor {
+                            alpha: a,
+                            red: r,
+                            green: g,
+                            blue: b,
+                        };
+                        window.set_chosen_color(chosen_rgba_color.into());
+                        window.set_chosen_color_description(
+                            format!("#{:02X}{:02X}{:02X} / rgb({r},{g},{b})", r, g, b).into(),
                         );
 
                         let buffer = SharedPixelBuffer::<Rgba8Pixel>::clone_from_slice(

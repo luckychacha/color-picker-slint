@@ -64,6 +64,8 @@ component MainWindow inherits Window {
     in-out property <float> circle_position_y: 1.0;
     in-out property <image> cursor-around-screenshot;
     in-out property <bool> has-image;
+    in-out property <color> chosen-color: #FFFFFF;
+    in-out property <string> chosen-color-description: "#FFFFFF / rgb(255,255,255)";
 
     background: picking-color-on-screen ? transparent : white;
 
@@ -121,6 +123,17 @@ component MainWindow inherits Window {
                 }
             }
         }
-        
+        Rectangle {
+            width: 30%;
+            height: 10%;
+            background: root.chosen-color;
+            border-color: black;
+            border-width: 1px;
+            border-radius: 5px;
+            padding: 5px;
+            Text {
+                text: root.chosen-color-description;
+            }
+        }
     }
 }
