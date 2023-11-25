@@ -4,12 +4,12 @@ This color picker is a cross-platform desktop application developed using Rust a
 
 ## Features
 
-- **Cross-Platform Compatibility**: Runs on Windows, macOS, and Linux.
-- **Real-Time Color Picking**: Users can pick colors in real-time from any location on their screen. (In progress)
-- **Magnifier Tool**: A magnifier tool to zoom in on pixels for precise color selection. (Todo)
-- **Color Format Conversion**: Supports conversion and display of colors in multiple formats like RGB, HEX, etc. (Todo)
-- **Intuitive User Interface**: Built with Slint UI, offering a user-friendly and straightforward interface. (Todo)
-- **Lightweight and Efficient**: Leveraging Rust's performance for a fast and low-resource application. (Todo)
+- [x] **Cross-Platform Compatibility**: Runs on Windows, macOS, and Linux.
+- [ ] **Real-Time Color Picking**: Users can pick colors in real-time from any location on their screen.
+- [x] **Magnifier Tool**: A magnifier tool to zoom in on pixels for precise color selection.
+- [ ] **Color Format Conversion**: Supports conversion and display of colors in multiple formats like RGB, HEX, etc.
+- [ ] **Intuitive User Interface**: Built with Slint UI, offering a user-friendly and straightforward interface.
+- [ ] **Lightweight and Efficient**: Leveraging Rust's performance for a fast and low-resource application.
 
 ## Installation
 
