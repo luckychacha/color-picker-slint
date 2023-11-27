@@ -100,6 +100,28 @@ component MainWindow inherits Window {
             source: root.cursor-around-screenshot;
         }
     }
+
+    Rectangle {
+        width: 0.4px;
+        height: root.picker-circle-radius * 2 * 1px;
+        border-width: 0.2px;
+        visible: has-image;
+        x: (root.circle_position_x + root.picker-circle-radius) * 1px;
+        y: root.circle_position_y * 1px;
+        border-color: black;
+    }
+
+
+    Rectangle {
+        width: root.picker-circle-radius * 2 * 1px;
+        height: 0.4px;
+        border-width: 0.2px;
+        visible: has-image;
+        x: root.circle_position_x * 1px;
+        y: (root.circle_position_y + root.picker-circle-radius) * 1px;
+        border-color: black;
+    }
+
     Text {
         visible: false;
         text: {
