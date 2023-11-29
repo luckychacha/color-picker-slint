@@ -91,8 +91,6 @@ pub fn main() {
         main_window.on_mouse_move(move |circle_position| {
             println!("cursor position: {:?}", circle_position.as_str());
             let window = weak_window.unwrap();
-            // window.set_circle_position_x(100.0);
-            // window.set_circle_position_y(100.0);
             window.set_moving(false);
             window.set_has_image(false);
             if !window.get_has_image() && circle_position.as_str() != "0,0" {
@@ -173,8 +171,6 @@ pub fn main() {
             600.0,
             (screen_width / 2.0 - 200.0) as i32,
             (screen_height / 2.0 - 300.0) as i32,
-            // 0,
-            // 0,
         );
     }
     main_window.run().unwrap();
