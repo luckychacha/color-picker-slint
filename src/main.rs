@@ -1,18 +1,50 @@
+use std::ops::Deref;
+use std::sync::Arc;
 // SPDX-License-Identifier: MIT
 use i_slint_backend_winit::WinitWindowAccessor;
 use image::imageops;
 use screenshots::Screen;
 use slint::{Color, Image, LogicalSize, Rgba8Pixel, RgbaColor, SharedPixelBuffer, WindowSize};
+use winit::monitor::MonitorHandle;
 
 #[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
 slint::include_modules!();
 
-fn get_current_monitor_size(window: &slint::Window) -> Option<(f32, f32)> {
+struct MonitorInner {
+    width: f32,
+    height: f32,
+}
+
+struct Monitor {
+    inner: Arc<MonitorInner>,
+}
+
+impl Deref for Monitor {
+    type Target = MonitorInner;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl From<MonitorHandle> for Monitor {
+    fn from(monitor: MonitorHandle) -> Self {
+        let size = monitor.size();
+        Monitor {
+            inner: Arc::new(MonitorInner {
+                width: size.width as f32,
+                height: size.height as f32,
+            }),
+        }
+    }
+}
+
+fn get_current_monitor_size(window: &slint::Window) -> Option<Monitor> {
     window.with_winit_window(|winit_win: &winit::window::Window| {
         let monitor = winit_win.current_monitor().unwrap();
-        (monitor.size().width as f32, monitor.size().height as f32)
+        monitor.into()
     })
 }
 
@@ -54,11 +86,11 @@ pub fn main() {
             window.set_moving(false);
             window.set_has_image(false);
 
-            if let Some((screen_width, screen_height)) = get_current_monitor_size(window.window()) {
+            if let Some(monitor    ) = get_current_monitor_size(window.window()) {
                 set_window_position_and_size(
                     window.window(),
-                    (screen_width + 20.0) / 2.0,
-                    (screen_height + 20.0) / 2.0,
+                    (monitor.width + 20.0) / 2.0,
+                    (monitor.height + 20.0) / 2.0,
                     -10,
                     -10,
                 );
@@ -73,14 +105,14 @@ pub fn main() {
             window.set_cursor_position_changed(false);
             window.set_moving(false);
             window.set_has_image(false);
-            if let Some((screen_width, screen_height)) = get_current_monitor_size(window.window()) {
+            if let Some(monitor    ) = get_current_monitor_size(window.window()) {
                 println!("windows has image: {:?}", window.get_has_image());
                 set_window_position_and_size(
                     window.window(),
                     400.0,
                     600.0,
-                    (screen_width / 2.0 - 200.0) as i32,
-                    (screen_height / 2.0 - 300.0) as i32,
+                    (monitor.width / 2.0 - 200.0) as i32,
+                    (monitor.height / 2.0 - 300.0) as i32,
                 );
             }
         });
@@ -164,13 +196,13 @@ pub fn main() {
         });
     }
 
-    if let Some((screen_width, screen_height)) = get_current_monitor_size(main_window.window()) {
+    if let Some(monitor    ) = get_current_monitor_size(main_window.window()) {
         set_window_position_and_size(
             main_window.window(),
             400.0,
             600.0,
-            (screen_width / 2.0 - 200.0) as i32,
-            (screen_height / 2.0 - 300.0) as i32,
+            (monitor.width / 2.0 - 200.0) as i32,
+            (monitor.height / 2.0 - 300.0) as i32,
         );
     }
     main_window.run().unwrap();
