@@ -1,5 +1,7 @@
 # color-picker-slint
 
+<div align="center"><sub>:warning: Work in progress :warning:</sub></div>
+
 This color picker is a cross-platform desktop application developed using Rust and the Slint UI framework. It allows users to easily pick colors from anywhere on their screen. Currently, the application is in active development, with the screen color picking feature nearing completion.
 
 ## Features
