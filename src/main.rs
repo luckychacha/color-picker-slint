@@ -62,6 +62,9 @@ pub fn main() {
 
     let main_window = MainWindow::new().unwrap();
 
+    let monitor = get_current_monitor_size(main_window.window()).expect("no monitor found");
+    let monitor = Arc::new(monitor);
+
     let weak_window = main_window.as_weak();
     main_window.on_popup_confirmed(move || {
         let window = weak_window.unwrap();
@@ -86,7 +89,7 @@ pub fn main() {
             window.set_moving(false);
             window.set_has_image(false);
 
-            if let Some(monitor    ) = get_current_monitor_size(window.window()) {
+            if let Some(monitor) = get_current_monitor_size(window.window()) {
                 set_window_position_and_size(
                     window.window(),
                     (monitor.width + 20.0) / 2.0,
@@ -105,16 +108,13 @@ pub fn main() {
             window.set_cursor_position_changed(false);
             window.set_moving(false);
             window.set_has_image(false);
-            if let Some(monitor    ) = get_current_monitor_size(window.window()) {
-                println!("windows has image: {:?}", window.get_has_image());
-                set_window_position_and_size(
-                    window.window(),
-                    400.0,
-                    600.0,
-                    (monitor.width / 2.0 - 200.0) as i32,
-                    (monitor.height / 2.0 - 300.0) as i32,
-                );
-            }
+            set_window_position_and_size(
+                window.window(),
+                400.0,
+                600.0,
+                (&monitor.width / 2.0 - 200.0) as i32,
+                (&monitor.height / 2.0 - 300.0) as i32,
+            );
         });
     }
 
@@ -135,6 +135,7 @@ pub fn main() {
                 // let circle_position_y = pos[1] - window.get_picker_circle_radius() as f32;
 
                 let circle_position_x = pos[0] + (window.get_picker_circle_radius() as f32) / 3.0;
+
                 let circle_position_y = pos[1] + (window.get_picker_circle_radius() as f32) / 3.0;
 
                 if window.get_cursor_position_changed() {
@@ -196,7 +197,7 @@ pub fn main() {
         });
     }
 
-    if let Some(monitor    ) = get_current_monitor_size(main_window.window()) {
+    if let Some(monitor) = get_current_monitor_size(main_window.window()) {
         set_window_position_and_size(
             main_window.window(),
             400.0,
