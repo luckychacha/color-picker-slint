@@ -103,6 +103,8 @@ pub fn main() {
 
     {
         let weak_window = main_window.as_weak();
+        let monitor_clone = Arc::clone(&monitor);
+
         main_window.on_stop_pick_screen_color(move || {
             let window = weak_window.unwrap();
             window.set_cursor_position_changed(false);
@@ -112,16 +114,17 @@ pub fn main() {
                 window.window(),
                 400.0,
                 600.0,
-                (&monitor.width / 2.0 - 200.0) as i32,
-                (&monitor.height / 2.0 - 300.0) as i32,
+                (&monitor_clone.width / 2.0 - 200.0) as i32,
+                (&monitor_clone.height / 2.0 - 300.0) as i32,
             );
         });
     }
 
     {
         let weak_window = main_window.as_weak();
+        let monitor_clone = Arc::clone(&monitor);
         main_window.on_mouse_move(move |circle_position| {
-            println!("cursor position: {:?}", circle_position.as_str());
+            // println!("cursor position: {:?}", circle_position.as_str());
             let window = weak_window.unwrap();
             window.set_moving(false);
             window.set_has_image(false);
@@ -134,7 +137,19 @@ pub fn main() {
                 // let circle_position_x = pos[0] - window.get_picker_circle_radius() as f32;
                 // let circle_position_y = pos[1] - window.get_picker_circle_radius() as f32;
 
-                let circle_position_x = pos[0] + (window.get_picker_circle_radius() as f32) / 3.0;
+                let mut circle_position_x =
+                    pos[0] + (window.get_picker_circle_radius() as f32) / 3.0;
+
+                println!(
+                    "{:?} {:?}",
+                    pos[0] + (window.get_picker_circle_radius() as f32),
+                    monitor_clone.width
+                );
+                if pos[0] + (window.get_picker_circle_radius() as f32) + 5.0
+                    >= monitor_clone.width / 2.0
+                {
+                    circle_position_x = pos[0] - 2.5 * window.get_picker_circle_radius() as f32;
+                }
 
                 let circle_position_y = pos[1] + (window.get_picker_circle_radius() as f32) / 3.0;
 
