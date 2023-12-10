@@ -151,7 +151,13 @@ pub fn main() {
                     circle_position_x = pos[0] - 2.5 * window.get_picker_circle_radius() as f32;
                 }
 
-                let circle_position_y = pos[1] + (window.get_picker_circle_radius() as f32) / 3.0;
+                let mut circle_position_y =
+                    pos[1] + (window.get_picker_circle_radius() as f32) / 3.0;
+                if pos[1] + (window.get_picker_circle_radius() as f32) + 5.0
+                    >= monitor_clone.height / 2.0
+                {
+                    circle_position_y = pos[1] - 2.5 * window.get_picker_circle_radius() as f32;
+                }
 
                 if window.get_cursor_position_changed() {
                     let screens = Screen::all().unwrap();
