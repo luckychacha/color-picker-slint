@@ -1,4 +1,4 @@
-use std::ops::Deref;
+use std::ops::{Deref, Mul};
 use std::sync::Arc;
 // SPDX-License-Identifier: MIT
 use i_slint_backend_winit::WinitWindowAccessor;
@@ -145,7 +145,7 @@ pub fn main() {
                     pos[0] + (window.get_picker_circle_radius() as f32),
                     monitor_clone.width
                 );
-                if pos[0] + (window.get_picker_circle_radius() as f32) + 5.0
+                if pos[0] + (window.get_picker_circle_radius().mul(2) as f32)
                     >= monitor_clone.width / 2.0
                 {
                     circle_position_x = pos[0] - 2.5 * window.get_picker_circle_radius() as f32;
@@ -153,7 +153,7 @@ pub fn main() {
 
                 let mut circle_position_y =
                     pos[1] + (window.get_picker_circle_radius() as f32) / 3.0;
-                if pos[1] + (window.get_picker_circle_radius() as f32) + 5.0
+                if pos[1] + (window.get_picker_circle_radius().mul(2) as f32)
                     >= monitor_clone.height / 2.0
                 {
                     circle_position_y = pos[1] - 2.5 * window.get_picker_circle_radius() as f32;
@@ -163,7 +163,7 @@ pub fn main() {
                     let screens = Screen::all().unwrap();
                     if let Some(image_buffer) = screens.get(0).and_then(|f| {
                         if !window.get_has_image() {
-                            f.capture_area(pos[0] as i32 - 15, pos[1] as i32 - 20, 30, 30)
+                            f.capture_area(pos[0] as i32 - 20, pos[1] as i32 - 20, 30, 30)
                                 .ok()
                         } else {
                             None
