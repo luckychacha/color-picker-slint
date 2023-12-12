@@ -4,7 +4,7 @@ use std::sync::Arc;
 use i_slint_backend_winit::WinitWindowAccessor;
 use image::imageops;
 use screenshots::Screen;
-use slint::{Color, Image, LogicalSize, Rgba8Pixel, RgbaColor, SharedPixelBuffer, WindowSize};
+use slint::{Image, LogicalSize, Rgba8Pixel, RgbaColor, SharedPixelBuffer, WindowSize};
 use winit::monitor::MonitorHandle;
 
 #[cfg(target_arch = "wasm32")]
@@ -131,7 +131,7 @@ pub fn main() {
             if !window.get_has_image() && circle_position.as_str() != "0,0" {
                 let pos: Vec<f32> = circle_position
                     .as_str()
-                    .split(",")
+                    .split(',')
                     .map(|e| e.parse::<f32>().unwrap())
                     .collect();
                 // let circle_position_x = pos[0] - window.get_picker_circle_radius() as f32;
