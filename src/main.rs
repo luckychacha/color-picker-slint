@@ -134,17 +134,10 @@ pub fn main() {
                     .split(',')
                     .map(|e| e.parse::<f32>().unwrap())
                     .collect();
-                // let circle_position_x = pos[0] - window.get_picker_circle_radius() as f32;
-                // let circle_position_y = pos[1] - window.get_picker_circle_radius() as f32;
 
                 let mut circle_position_x =
                     pos[0] + (window.get_picker_circle_radius() as f32) / 3.0;
 
-                println!(
-                    "{:?} {:?}",
-                    pos[0] + (window.get_picker_circle_radius() as f32),
-                    monitor_clone.width
-                );
                 if pos[0] + (window.get_picker_circle_radius().mul(2) as f32)
                     >= monitor_clone.width / 2.0
                 {
