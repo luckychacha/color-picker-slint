@@ -37,6 +37,7 @@ component MainWindow inherits Window {
 
     callback start-pick-screen-color();
     callback stop-pick-screen-color();
+    callback copy-color-to-clipboard();
     pure callback mouse-move(string) -> string;
 
     show_confirm_popup => { confirm_popup.show(); }
@@ -142,6 +143,15 @@ component MainWindow inherits Window {
                 clicked => {
                     root.picking-color-on-screen = true;
                     root.start-pick-screen-color();
+                }
+            }
+
+            copy-color-btn := Button {
+                width: 30%;
+                // height: 50px;
+                text: "Copy Color";
+                clicked => {
+                    root.copy-color-to-clipboard();
                 }
             }
         }

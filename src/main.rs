@@ -1,3 +1,4 @@
+use clipboard::{ClipboardContext, ClipboardProvider};
 use std::ops::{Deref, Mul};
 use std::sync::Arc;
 // SPDX-License-Identifier: MIT
@@ -172,7 +173,7 @@ pub fn main() {
                             "r: {r}, g: {g}, b: {b}, a: {a}, hex: #{:02X}{:02X}{:02X}",
                             r, g, b
                         );
-                        let chosen_rgba_color = RgbaColor {
+                        let chosen_rgba_color: RgbaColor<u8> = RgbaColor {
                             alpha: a,
                             red: r,
                             green: g,
@@ -208,6 +209,22 @@ pub fn main() {
                 );
             }
             "".into()
+        });
+    }
+
+    {
+        let weak_window = main_window.as_weak();
+        main_window.on_copy_color_to_clipboard(move || {
+            // println!("cursor position: {:?}", circle_position.as_str());
+            let window = weak_window.unwrap();
+            let RgbaColor {
+                red, green, blue, ..
+            }: RgbaColor<u8> = window.get_chosen_color().into();
+            if let Err(r) = ClipboardProvider::new().and_then(|mut clipboard: ClipboardContext| {
+                clipboard.set_contents(format!("#{:02X}{:02X}{:02X}", red, green, blue))
+            }) {
+                println!("Copy Color To Clipboard Met Error: {}", r);
+            }
         });
     }
 
