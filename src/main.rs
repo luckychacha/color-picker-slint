@@ -173,15 +173,9 @@ pub fn main() {
                             "r: {r}, g: {g}, b: {b}, a: {a}, hex: #{:02X}{:02X}{:02X}",
                             r, g, b
                         );
-                        let chosen_rgba_color: RgbaColor<u8> = RgbaColor {
-                            alpha: a,
-                            red: r,
-                            green: g,
-                            blue: b,
-                        };
-                        window.set_chosen_color(chosen_rgba_color.into());
+                        window.set_chosen_color(slint::Color::from_argb_u8(a, r, g, b));
                         window.set_chosen_color_description(
-                            format!("#{:02X}{:02X}{:02X} / rgb({r},{g},{b})", r, g, b).into(),
+                            format!("0x{:02X}{:02X}{:02X} / rgb({r},{g},{b})", r, g, b).into(),
                         );
 
                         let buffer = SharedPixelBuffer::<Rgba8Pixel>::clone_from_slice(
@@ -221,7 +215,7 @@ pub fn main() {
                 red, green, blue, ..
             }: RgbaColor<u8> = window.get_chosen_color().into();
             if let Err(r) = ClipboardProvider::new().and_then(|mut clipboard: ClipboardContext| {
-                clipboard.set_contents(format!("#{:02X}{:02X}{:02X}", red, green, blue))
+                clipboard.set_contents(format!("0x{:02X}{:02X}{:02X}", red, green, blue))
             }) {
                 println!("Copy Color To Clipboard Met Error: {}", r);
             }
