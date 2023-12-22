@@ -1,10 +1,10 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
-use std::ops::{Deref, Mul};
-use std::sync::Arc;
 use i_slint_backend_winit::WinitWindowAccessor;
 use image::imageops;
 use screenshots::Screen;
 use slint::{Image, LogicalSize, Rgba8Pixel, RgbaColor, SharedPixelBuffer, WindowSize};
+use std::ops::{Deref, Mul};
+use std::sync::Arc;
 use winit::monitor::MonitorHandle;
 
 #[cfg(target_arch = "wasm32")]
